@@ -1,18 +1,17 @@
 import { Router } from "express";
 import addCategoryController from "../../controllers/category/addCategoryController";
-import editCategoryController from "../../controllers/category/editCategoryController";
-import getCategoryController from "../../controllers/category/getCategoryController";
-import disableCategoryController from "../../controllers/category/disableCategoryController";
-import deleteCategoryController from "../../controllers/category/deleteCategoryController";
-import unDisableCategoryController from "../../controllers/category/unDisableCategoryController";
-
+import updateCategoryNameController from "../../controllers/category/updateCategoryNameController ";
+import getAllCategoriesController  from "../../controllers/category/getAllCategoriesController";
+import toggleCategoryStatusController from "../../controllers/category/toggleCategoryStatusController ";
+import getCategoryByIdController from "../../controllers/category/getCategoryByIdController";
+import deleteCategoryController from "../../controllers/category/deleteCategoryController"
 const categoryRouter = Router();
 
 categoryRouter.post("/", addCategoryController);
-categoryRouter.put("/:id", editCategoryController);
-categoryRouter.get("/:id?", getCategoryController);
-categoryRouter.put("/disable/:id", disableCategoryController);
-categoryRouter.put("/undisable/:id", unDisableCategoryController);
+categoryRouter.put("/:id", updateCategoryNameController);
+categoryRouter.get("/:id", getCategoryByIdController);
+categoryRouter.get("/", getAllCategoriesController);
+categoryRouter.put("/toggle/:id", toggleCategoryStatusController);
 categoryRouter.delete("/:id", deleteCategoryController);
 
 export default categoryRouter;

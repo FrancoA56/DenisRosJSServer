@@ -6,7 +6,7 @@ const addCategoryController = async (req: Request, res: Response): Promise<void>
     const { name, isDisable }: { name?: string; isDisable?: boolean } = req.body;
 
     if (!name) {
-      res.status(400).json({ error: "Name is required to create the category" });
+      res.status(400).json({ error: "Se necesita completar el campo nombre para crear la categoria." });
       return;
     }
 

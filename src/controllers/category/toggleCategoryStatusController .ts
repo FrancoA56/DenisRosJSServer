@@ -1,8 +1,7 @@
-
 import { Request, Response } from "express";
-import { deleteCategoryHandler } from "../../middlewares/category/deleteCategoryHandler";
+import { toggleCategoryStatusHandler } from "../../middlewares/category/toggleCategoryStatusHandler";
 
-const deleteCategoryController = async (req: Request, res: Response): Promise<void> => {
+const toggleCategoryStatusController = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
 
@@ -18,12 +17,12 @@ const deleteCategoryController = async (req: Request, res: Response): Promise<vo
       return;
     }
 
-    await deleteCategoryHandler(categoryId);
+    const updatedCategory = await toggleCategoryStatusHandler(categoryId);
 
-    res.status(204).send(); // 204 No Content (éxito sin cuerpo de respuesta)
+    res.status(200).json(updatedCategory);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
   }
 };
 
-export default deleteCategoryController;
+export default toggleCategoryStatusController;

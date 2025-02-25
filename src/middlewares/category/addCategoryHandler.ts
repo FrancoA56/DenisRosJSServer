@@ -7,7 +7,9 @@ export const addCategoryHandler = async (categoryData: CategoryInput) => {
   const { name, isDisable } = categoryData;
 
   if (!name) {
-    throw new Error("Name is required to create the category");
+    throw new Error(
+      "Se necesita completar el campo nombre para crear la categoria."
+    );
   }
 
   try {
@@ -17,7 +19,7 @@ export const addCategoryHandler = async (categoryData: CategoryInput) => {
     });
 
     if (existingCategory) {
-      throw new Error("Category with this name already exists");
+      throw new Error("Ya existe una categoria con este nombre.");
     }
 
     // Crear la categoría en la base de datos con Prisma
@@ -30,6 +32,6 @@ export const addCategoryHandler = async (categoryData: CategoryInput) => {
 
     return newCategory;
   } catch (error) {
-    throw new Error(`Failed to create category: ${(error as Error).message}`);
+    throw new Error(`Ha ocurrido un error: ${(error as Error).message}`);
   }
 };
