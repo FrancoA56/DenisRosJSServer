@@ -13,6 +13,12 @@ export const deleteCategoryHandler = async (categoryId: number) => {
       throw new Error("No se encontró una categoría con el ID proporcionado.");
     }
 
+    // Desvincular los productos asociados a esta marca
+    await prisma.product.updateMany({
+      where: { categoryId }, // Filtra los productos que tienen esta marca
+      data: { categoryId: null }, // Establece brandId como null
+    });
+
     // Eliminar la categoría
     await prisma.category.delete({
       where: { id: categoryId },

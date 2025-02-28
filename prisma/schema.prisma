@@ -21,10 +21,10 @@ model Product {
   name           String
   shortDesc      String
   longDesc       String
-  categoryId     Int
-  category       Category     @relation(fields: [categoryId], references: [id])
-  brandId        String
-  brand          Brand        @relation(fields: [brandId], references: [id])
+  categoryId     Int?
+  category       Category?    @relation(fields: [categoryId], references: [id])
+  brandId        Int?
+  brand          Brand?       @relation(fields: [brandId], references: [id])
   reviews        Review[]
   gallery        String[]
   variations     Variation[]
@@ -52,9 +52,10 @@ model Category {
 }
 
 model Brand {
-  id    String @id @default(uuid())  // Puede ser uuid() o cuid()
+  id    Int @id @default(autoincrement())  // Puede ser uuid() o cuid()
   name  String @unique
   logo  String?
+  isDisabled Boolean @default(false)
   products Product[]
 
   @@map("brands")
@@ -142,15 +143,15 @@ model Shipping {
 
 model User {
   id             Int      @id @default(autoincrement()) // ID autoincremental
-  firstName      String
-  lastName       String
-  ciudad         String
-  provincia      String
-  direccion      String
-  numeroDireccion String
+  firstName      String?
+  lastName       String?
+  ciudad         String?
+  provincia      String?
+  direccion      String?
+  numeroDireccion String?
   email          String   @unique
   passwordHashed  String   // Contraseña encriptada
-  codigoPostal    String
+  codigoPostal    String?
   isDisabled      Boolean   @default(false)
   orders         Order[]   // Relación con órdenes
   reviews        Review[]   // Relación con reseñas

@@ -2,18 +2,16 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export const getAllCategoriesHandler = async (
-  includeDisabled: boolean = false
-) => {
+export const getAllBrandsHandler = async (includeDisabled: boolean = false) => {
   try {
-    const categories = await prisma.category.findMany({
+    const brands = await prisma.brand.findMany({
       where: includeDisabled ? {} : { isDisabled: false }, // Filtro condicional
       orderBy: {
-        name: "asc",
+        name: "asc", // Ordenar alfabéticamente por nombre
       },
     });
 
-    return categories;
+    return brands;
   } catch (error) {
     throw new Error(`Ha ocurrido un error: ${(error as Error).message}`);
   }

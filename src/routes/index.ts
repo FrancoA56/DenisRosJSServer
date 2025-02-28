@@ -13,10 +13,10 @@ const router = Router();
 
 // router.use("/product", productRouter);
 // router.use("/shop", shopRouter);
-// router.use("/user", userRouter);
+router.use("/user", userRouter);
 // router.use("/review", reviewRouter);
 router.use("/category", categoryRouter);
-// router.use("/brand", brandRouter);
+router.use("/brand", brandRouter);
 // router.use("/order", orderRouter);
 // router.use("/payments", paymentsRouter);
 // router.use("/shipping", shippingRouter);

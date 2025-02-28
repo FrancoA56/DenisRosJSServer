@@ -6,7 +6,7 @@ Crea una nueva categoría en la base de datos.
 
 Método: POST
 
-URL: URL/category/
+URL: URL/api/category/
 
 Body:
 
@@ -41,7 +41,7 @@ Cambia el estado de una categoría (habilitar o deshabilitar) según su id.
 
 Método: PUT
 
-URL: URL/category/toggle/:id
+URL: URL/api/category/toggle/:id
 
 Parámetros:
 
@@ -73,7 +73,7 @@ Actualiza el nombre de una categoría existente según su id.
 
 Método: PUT
 
-URL: URL/category/:id
+URL: URL/api/category/:id
 
 Parámetros:
 
@@ -114,7 +114,7 @@ Obtiene todas las categorías, con la opción de filtrar solo las habilitadas.
 
 Método: GET
 
-URL: URL/category/
+URL: URL/api/category/
 
 Parámetros Opcionales:
 
@@ -158,7 +158,7 @@ Errores:
 Obtener una categoría por ID
 Método: GET
 
-URL: URL/category/:id
+URL: URL/api/category/:id
 
 Respuesta Exitosa:
 
@@ -186,7 +186,7 @@ Elimina completamente una categoría de la base de datos según su id.
 
 Método: DELETE
 
-URL: URL/category/:id
+URL: URL/api/category/:id
 
 Parámetros:
 
