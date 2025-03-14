@@ -2,6 +2,26 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum InvoiceStatus {
+  PENDIENTE
+  PAGADA
+  CANCELADA
+}
+
+enum PaymentMethod {
+  TARJETA
+  TRANSFERENCIA
+  EFECTIVO
+  MODO
+  MERCADOPAGO
+}
+
+enum Role {
+  CLIENTE
+  GESTOR
+  ADMIN
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -16,145 +36,168 @@ enum OrderStatus {
 }
 
 model Product {
-  id             Int       @id @default(autoincrement())
-  sku            String       
-  name           String
-  shortDesc      String
-  longDesc       String
-  categoryId     Int?
-  category       Category?    @relation(fields: [categoryId], references: [id])
-  brandId        Int?
-  brand          Brand?       @relation(fields: [brandId], references: [id])
-  reviews        Review[]
-  gallery        String[]
-  variations     Variation[]
-  discount       Discount?
-  orderItems     OrderItem[] // Relación inversa con OrderItem
-  length         Float?
-  width          Float?
-  height         Float?
-  weight         Float?
-  isDisabled     Boolean      @default(false)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  deletedAt      DateTime?
+  id         Int         @id @default(autoincrement())
+  sku        String
+  name       String
+  shortDesc  String
+  longDesc   String
+  categoryId Int?
+  category   Category?   @relation(fields: [categoryId], references: [id])
+  brandId    Int?
+  brand      Brand?      @relation(fields: [brandId], references: [id])
+  reviews    Review[]
+  gallery    String[]
+  variations Variation[]
+  discount   Discount?
+  orderItems OrderItem[] // Relación inversa con OrderItem
+  length     Float?
+  width      Float?
+  height     Float?
+  weight     Float?
+  isDisabled Boolean     @default(false)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  deletedAt  DateTime?
 
   @@map("products")
 }
 
 model Category {
-  id       Int       @id @default(autoincrement())
-  name     String    @unique
-  products Product[]
-  isDisabled Boolean @default(false)
-  
+  id         Int       @id @default(autoincrement())
+  name       String    @unique
+  products   Product[]
+  isDisabled Boolean   @default(false)
+
   @@map("categories")
 }
 
 model Brand {
-  id    Int @id @default(autoincrement())  // Puede ser uuid() o cuid()
-  name  String @unique
-  logo  String?
-  isDisabled Boolean @default(false)
-  products Product[]
+  id         Int       @id @default(autoincrement()) // Puede ser uuid() o cuid()
+  name       String    @unique
+  logo       String?
+  isDisabled Boolean   @default(false)
+  products   Product[]
 
   @@map("brands")
 }
 
 model Review {
-  id         Int      @id @default(autoincrement())
-  productId  Int      // Cambiado a Int
-  product    Product  @relation(fields: [productId], references: [id])
-  userId     Int      // Nuevo campo para la relación con User
-  user       User     @relation(fields: [userId], references: [id])
-  stars      Int      // Valor entre 1-5
-  message    String?
-  createdAt  DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  productId Int // Cambiado a Int
+  product   Product  @relation(fields: [productId], references: [id])
+  userId    Int // Nuevo campo para la relación con User
+  user      User     @relation(fields: [userId], references: [id])
+  stars     Int // Valor entre 1-5
+  message   String?
+  createdAt DateTime @default(now())
 
   @@map("reviews")
 }
 
 model Variation {
-  id             Int      @id @default(autoincrement())
-  productId      Int
-  product        Product  @relation(fields: [productId], references: [id])
-  type           String   // Tamaño, color, etc.
-  code           String   @unique
-  name           String
-  imageUrl       String?
-  price          Float
-  orderItems     OrderItem[] // Relación inversa con OrderItem
+  id         Int         @id @default(autoincrement())
+  productId  Int
+  product    Product     @relation(fields: [productId], references: [id])
+  type       String // Tamaño, color, etc.
+  code       String      @unique
+  name       String
+  imageUrl   String?
+  price      Float
+  length     Float? 
+  width      Float? 
+  height     Float? 
+  weight     Float?
+  orderItems OrderItem[] // Relación inversa con OrderItem
 
   @@map("variations")
 }
 
 model Discount {
-  id         Int      @id @default(autoincrement())
-  productId  Int      @unique// Cambiado a Int
-  product    Product  @relation(fields: [productId], references: [id])
-  type       String   // "percentage" o "fixed"
-  value      Float    // Si es "percentage" es %, si es "fixed" es dinero
-  startDate  DateTime?
-  endDate    DateTime?
+  id        Int       @id @default(autoincrement())
+  productId Int       @unique // Cambiado a Int
+  product   Product   @relation(fields: [productId], references: [id])
+  type      String // "percentage" o "fixed"
+  value     Float // Si es "percentage" es %, si es "fixed" es dinero
+  startDate DateTime?
+  endDate   DateTime?
 
   @@map("discounts")
 }
 
 model Order {
-  id          Int           @id @default(autoincrement())
-  userId      Int
-  user        User          @relation(fields: [userId], references: [id])
-  items       OrderItem[]
-  totalAmount Float
-  status      OrderStatus   @default(PENDING) // Estado de la compra
-  paymentId   String?       // ID del pago en Mercado Pago u otro servicio
-  paymentMethod String      // Método de pago ("MercadoPago", "Banco", etc.)
-  shipping    Shipping?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id            Int         @id @default(autoincrement())
+  userId        Int
+  user          User        @relation(fields: [userId], references: [id])
+  items         OrderItem[]
+  totalAmount   Float
+  status        OrderStatus @default(PENDING) // Estado de la compra
+  paymentId     String? // ID del pago en Mercado Pago u otro servicio
+  paymentMethod String // Método de pago ("MercadoPago", "Banco", etc.)
+  shipping      Shipping?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  Invoice       Invoice[]
 
   @@map("orders")
 }
 
 model OrderItem {
-  id         Int      @id @default(autoincrement())
-  orderId    Int
-  order      Order    @relation(fields: [orderId], references: [id])
-  productId  Int
-  product    Product  @relation(fields: [productId], references: [id])
+  id          Int        @id @default(autoincrement())
+  orderId     Int
+  order       Order      @relation(fields: [orderId], references: [id])
+  productId   Int
+  product     Product    @relation(fields: [productId], references: [id])
   variationId Int?
-  variation  Variation? @relation(fields: [variationId], references: [id])
-  quantity   Int
-  price      Float
+  variation   Variation? @relation(fields: [variationId], references: [id])
+  quantity    Int
+  price       Float
 
   @@map("order_items")
 }
 
 model Shipping {
-  id        Int      @id @default(autoincrement())
-  orderId   Int     @unique
-  order     Order   @relation(fields: [orderId], references: [id])
-  trackingId String?  // ID de seguimiento de Shipnow
-  status    String  // Estado del envío (En camino, Entregado, etc.)
-  createdAt DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  orderId    Int      @unique
+  order      Order    @relation(fields: [orderId], references: [id])
+  trackingId String? // ID de seguimiento de Shipnow
+  status     String // Estado del envío (En camino, Entregado, etc.)
+  createdAt  DateTime @default(now())
 
   @@map("shippings")
 }
 
 model User {
-  id             Int      @id @default(autoincrement()) // ID autoincremental
-  firstName      String?
-  lastName       String?
-  ciudad         String?
-  provincia      String?
-  direccion      String?
+  id              Int       @id @default(autoincrement()) // ID autoincremental
+  firstName       String?
+  lastName        String?
+  phone           String?
+  bday            DateTime?
+  ciudad          String?
+  provincia       String?
+  direccion       String?
   numeroDireccion String?
-  email          String   @unique
-  passwordHashed  String   // Contraseña encriptada
+  email           String    @unique
+  passwordHashed  String // Contraseña encriptada
   codigoPostal    String?
   isDisabled      Boolean   @default(false)
-  orders         Order[]   // Relación con órdenes
-  reviews        Review[]   // Relación con reseñas
-  createdAt      DateTime @default(now()) // Fecha de creación
-  updatedAt      DateTime @updatedAt      // Fecha de actualización
+  role            Role      @default(CLIENTE) // Nuevo campo: Rol del usuario
+  orders          Order[] // Relación con órdenes
+  reviews         Review[] // Relación con reseñas
+  Invoice         Invoice[]
+  createdAt       DateTime  @default(now()) // Fecha de creación
+  updatedAt       DateTime  @updatedAt // Fecha de actualización
+}
+
+model Invoice {
+  id            Int           @id @default(autoincrement())
+  userId        Int
+  user          User          @relation(fields: [userId], references: [id])
+  orderId       Int
+  order         Order         @relation(fields: [orderId], references: [id])
+  total         Decimal       @db.Decimal(10, 2) // Mejor precisión para precios
+  items         Json // Lista de productos comprados
+  paymentMethod PaymentMethod // Enum para métodos de pago
+  status        InvoiceStatus @default(PENDIENTE) // Enum para estado de la factura
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }

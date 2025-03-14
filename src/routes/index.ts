@@ -8,15 +8,18 @@ import brandRouter from "./brand";
 import orderRouter from "./orders";
 import paymentsRouter from "./payments";
 import shippingRouter from "./shipping";
+import variationRouter from "./variations";
+import productRouter from "./products";
 
 const router = Router();
 
-// router.use("/product", productRouter);
+router.use("/product", productRouter);
 // router.use("/shop", shopRouter);
 router.use("/user", userRouter);
 // router.use("/review", reviewRouter);
 router.use("/category", categoryRouter);
 router.use("/brand", brandRouter);
+router.use("/variation", variationRouter);
 // router.use("/order", orderRouter);
 // router.use("/payments", paymentsRouter);
 // router.use("/shipping", shippingRouter);

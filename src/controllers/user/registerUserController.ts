@@ -1,25 +1,17 @@
 import { Request, Response } from "express";
 import { registerUserHandler } from "../../middlewares/user/registerUserHandler";
 
-const registerUserController = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+const registerUserController = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
 
-    // Validar campos obligatorios
     if (!email || !password) {
-      res
-        .status(400)
-        .json({
-          error: "El correo electrónico y la contraseña son obligatorios.",
-        });
+      res.status(400).json({ error: "El correo electrónico y la contraseña son obligatorios." });
       return;
     }
 
     // Registrar al usuario
-    const newUser = await registerUserHandler({ email, password });
+    const newUser = await registerUserHandler({ email, password, role });
 
     res.status(201).json(newUser);
   } catch (error) {

@@ -3,11 +3,18 @@ import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
+enum Role {
+  CLIENTE = "CLIENTE",
+  GESTOR = "GESTOR",
+  ADMIN = "ADMIN",
+}
+
 export const registerUserHandler = async (userData: {
   email: string;
   password: string;
+  role?: Role; // Nuevo campo: Rol del usuario (opcional)
 }) => {
-  const { email, password } = userData;
+  const { email, password, role } = userData;
 
   try {
     // Verificar si el correo electrónico ya está registrado
@@ -16,7 +23,9 @@ export const registerUserHandler = async (userData: {
     });
 
     if (existingUser) {
-      throw new Error("Ya existe un usuario registrado con este correo electrónico.");
+      throw new Error(
+        "Ya existe un usuario registrado con este correo electrónico."
+      );
     }
 
     // Hashear la contraseña
@@ -28,6 +37,7 @@ export const registerUserHandler = async (userData: {
       data: {
         email,
         passwordHashed,
+        role: role || "CLIENTE", // Asignar el rol (por defecto: "cliente")
       },
     });
 
