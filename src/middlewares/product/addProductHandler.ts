@@ -13,10 +13,10 @@ export const addProductHandler = async (productData: any) => {
     gallery,
     variations,
     discount,
-    length,
-    width,
-    height,
-    weight,
+    length: productLength,
+    width: productWidth,
+    height: productHeight,
+    weight: productWeight,
     isDisabled,
   } = productData;
 
@@ -27,6 +27,15 @@ export const addProductHandler = async (productData: any) => {
   }
 
   try {
+    // Asignar medidas del producto a las variaciones si no se proporcionan
+    const variationsWithDefaults = variations.map((variation: any) => ({
+      ...variation,
+      length: variation.length ?? productLength, // Usar medidas de la variación o las del producto
+      width: variation.width ?? productWidth,
+      height: variation.height ?? productHeight,
+      weight: variation.weight ?? productWeight,
+    }));
+
     const newProduct = await prisma.product.create({
       data: {
         name,
@@ -37,17 +46,17 @@ export const addProductHandler = async (productData: any) => {
         brandId,
         gallery,
         variations: {
-          create: variations,
+          create: variationsWithDefaults,
         },
         discount: discount
           ? {
               create: discount,
             }
           : undefined,
-        length,
-        width,
-        height,
-        weight,
+        length: productLength,
+        width: productWidth,
+        height: productHeight,
+        weight: productWeight,
         isDisabled: isDisabled ?? false,
       },
     });

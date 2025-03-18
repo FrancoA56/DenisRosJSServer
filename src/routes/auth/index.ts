@@ -7,6 +7,7 @@ import updateUserController from "../../controllers/user/updateUserController";
 import toggleUserStatusController from "../../controllers/user/toggleUserStatusController";
 import updateUserRoleController from "../../controllers/user/updateUserRoleController";
 import getAllUsersController from "../../controllers/user/getAllUsersController";
+
 const userRouter = Router();
 
 userRouter.post("/register", registerUserController);

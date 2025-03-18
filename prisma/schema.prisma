@@ -99,7 +99,7 @@ model Variation {
   productId  Int
   product    Product     @relation(fields: [productId], references: [id])
   type       String // Tamaño, color, etc.
-  code       String      @unique
+  code       String      
   name       String
   imageUrl   String?
   price      Float
@@ -107,6 +107,7 @@ model Variation {
   width      Float? 
   height     Float? 
   weight     Float?
+  stock      Int         @default(0) // Nuevo campo: Stock de la variación
   orderItems OrderItem[] // Relación inversa con OrderItem
 
   @@map("variations")

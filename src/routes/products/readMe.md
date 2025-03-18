@@ -187,3 +187,58 @@ GET /api/product?search=producto
 
 Combinación de filtros y ordenamiento:
 GET /api/product?category=1&brand=2&isDisabled=false&sortBy=name&sortOrder=asc&search=producto
+
+
+*********************************************************************
+
+
+Deshabilitar Producto
+Deshabilita/Habilita un nuevo producto en la base de datos.
+
+Método: PUT
+
+URL: URL/api/product/toggle/:id
+
+Params: Id del producto a modificar
+
+Respuesta exitosa:
+
+{
+  "id": 1,
+  "name": "Nombre del producto",
+  "sku": "SKU123",
+  "shortDesc": "Descripción corta",
+  "longDesc": "Descripción larga",
+  "categoryId": 1,
+  "brandId": 1,
+  "gallery": ["url1", "url2"],
+  "variations": [
+    {
+      "id": 1,
+      "type": "Tamaño",
+      "code": "S",
+      "name": "Pequeño",
+      "price": 10.0
+    }
+  ],
+  "discount": {
+    "id": 1,
+    "type": "percentage",
+    "value": 10.0,
+    "startDate": "2023-01-01T00:00:00Z",
+    "endDate": "2023-12-31T23:59:59Z"
+  },
+  "length": 10.0,
+  "width": 5.0,
+  "height": 2.0,
+  "weight": 1.0,
+  "isDisabled": false|true,
+  "createdAt": "2023-01-01T00:00:00Z",
+  "updatedAt": "2023-01-01T00:00:00Z"
+}
+
+Errores:
+
+400: Si no se proporcionan los campos obligatorios.
+
+500: Si ocurre un error en el servidor.

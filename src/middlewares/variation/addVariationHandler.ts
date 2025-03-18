@@ -3,9 +3,9 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export const addVariationHandler = async (variationData: any) => {
-  const { productId, type, code, name, imageUrl, price, length, width, height, weight } = variationData;
+  const { productId, stock, type, code, name, imageUrl, price, length, width, height, weight } = variationData;
 
-  if (!productId || !type || !code || !name || !price) {
+  if (!productId || !type || !code || !name || !price || !stock) {
     throw new Error("Faltan campos obligatorios para crear la variación.");
   }
 
@@ -24,6 +24,7 @@ export const addVariationHandler = async (variationData: any) => {
       data: {
         productId,
         type,
+        stock,
         code,
         name,
         imageUrl,

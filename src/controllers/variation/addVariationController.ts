@@ -3,10 +3,10 @@ import { addVariationHandler } from "../../middlewares/variation/addVariationHan
 
 const addVariationController = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { productId, type, code, name, imageUrl, price, length, width, height, weight } = req.body;
+    const { productId, type, code, name, imageUrl, price, length, width, height, stock, weight } = req.body;
 
     // Validar campos obligatorios
-    if (!productId || !type || !code || !name || !price) {
+    if (!productId || !type || !code || !name || !price || !stock) {
       res.status(400).json({ error: "Faltan campos obligatorios para crear la variación." });
       return;
     }
@@ -16,6 +16,7 @@ const addVariationController = async (req: Request, res: Response): Promise<void
       productId,
       type,
       code,
+      stock,
       name,
       imageUrl,
       price,
