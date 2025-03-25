@@ -3,12 +3,34 @@ import { getAllCategoriesHandler } from "../../middlewares/category/getAllCatego
 
 const getAllCategoriesController = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { includeDisabled } = req.query;
+    const { 
+      includeDisabled,
+      sortBy,
+      sortOrder,
+      filterStatus
+    } = req.query;
 
-    // Convertir el query parameter a booleano
+    // Convertir y validar parámetros
     const includeDisabledBool = includeDisabled === "true";
+    
+    // Validar sortBy
+    const validatedSortBy = sortBy === 'name' ? 'name' : 'id';
+    
+    // Validar sortOrder
+    const validatedSortOrder = sortOrder === 'desc' ? 'desc' : 'asc';
+    
+    // Validar filterStatus
+    let validatedFilterStatus: 'all' | 'enabled' | 'disabled' = 'all';
+    if (filterStatus === 'enabled' || filterStatus === 'disabled') {
+      validatedFilterStatus = filterStatus;
+    }
 
-    const categories = await getAllCategoriesHandler(includeDisabledBool);
+    const categories = await getAllCategoriesHandler({
+      includeDisabled: includeDisabledBool,
+      sortBy: validatedSortBy,
+      sortOrder: validatedSortOrder,
+      filterStatus: validatedFilterStatus
+    });
 
     res.status(200).json(categories);
   } catch (error) {

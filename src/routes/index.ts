@@ -10,6 +10,7 @@ import paymentsRouter from "./payments";
 import shippingRouter from "./shipping";
 import variationRouter from "./variations";
 import productRouter from "./products";
+import attributeRouter from "./attributes"
 
 const router = Router();
 
@@ -20,6 +21,7 @@ router.use("/user", userRouter);
 router.use("/category", categoryRouter);
 router.use("/brand", brandRouter);
 router.use("/variation", variationRouter);
+router.use("/attributes", attributeRouter)
 // router.use("/order", orderRouter);
 // router.use("/payments", paymentsRouter);
 // router.use("/shipping", shippingRouter);

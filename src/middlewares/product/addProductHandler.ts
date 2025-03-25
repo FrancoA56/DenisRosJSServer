@@ -2,7 +2,23 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export const addProductHandler = async (productData: any) => {
+interface ProductBaseData {
+  name: string;
+  sku: string;
+  shortDesc: string;
+  longDesc: string;
+  categoryId?: number;
+  brandId?: number;
+  gallery?: string[];
+  basePrice: number;
+  baseWeight?: number;
+  baseLength?: number;
+  baseWidth?: number;
+  baseHeight?: number;
+  isDisabled?: boolean;
+}
+
+export const addProductHandler = async (productData: ProductBaseData) => {
   const {
     name,
     sku,
@@ -10,32 +26,22 @@ export const addProductHandler = async (productData: any) => {
     longDesc,
     categoryId,
     brandId,
-    gallery,
-    variations,
-    discount,
-    length: productLength,
-    width: productWidth,
-    height: productHeight,
-    weight: productWeight,
-    isDisabled,
+    gallery = [],
+    basePrice,
+    baseWeight,
+    baseLength,
+    baseWidth,
+    baseHeight,
+    isDisabled = false,
   } = productData;
 
-  if (!name || !sku) {
+  if (!name || !sku || basePrice === undefined) {
     throw new Error(
-      "Se necesitan los campos nombre y sku para crear el producto."
+      "Se necesitan los campos nombre, sku y basePrice para crear el producto."
     );
   }
 
   try {
-    // Asignar medidas del producto a las variaciones si no se proporcionan
-    const variationsWithDefaults = variations.map((variation: any) => ({
-      ...variation,
-      length: variation.length ?? productLength, // Usar medidas de la variación o las del producto
-      width: variation.width ?? productWidth,
-      height: variation.height ?? productHeight,
-      weight: variation.weight ?? productWeight,
-    }));
-
     const newProduct = await prisma.product.create({
       data: {
         name,
@@ -45,24 +51,21 @@ export const addProductHandler = async (productData: any) => {
         categoryId,
         brandId,
         gallery,
-        variations: {
-          create: variationsWithDefaults,
-        },
-        discount: discount
-          ? {
-              create: discount,
-            }
-          : undefined,
-        length: productLength,
-        width: productWidth,
-        height: productHeight,
-        weight: productWeight,
-        isDisabled: isDisabled ?? false,
+        basePrice,
+        baseWeight,
+        baseLength,
+        baseWidth,
+        baseHeight,
+        isDisabled,
+      },
+      include: {
+        category: true,
+        brand: true,
       },
     });
 
     return newProduct;
   } catch (error) {
-    throw new Error(`Ha ocurrido un error: ${(error as Error).message}`);
+    throw new Error(`Error al crear el producto: ${(error as Error).message}`);
   }
 };

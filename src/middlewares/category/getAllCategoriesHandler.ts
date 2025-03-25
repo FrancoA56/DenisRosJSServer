@@ -2,14 +2,30 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export const getAllCategoriesHandler = async (
-  includeDisabled: boolean = false
-) => {
+type GetCategoriesOptions = {
+  includeDisabled: boolean;
+  sortBy: 'id' | 'name';
+  sortOrder: 'asc' | 'desc';
+  filterStatus: 'all' | 'enabled' | 'disabled';
+};
+
+export const getAllCategoriesHandler = async (options: GetCategoriesOptions) => {
   try {
+    // Determinar el filtro de estado
+    let statusFilter = {};
+    if (options.filterStatus === 'enabled') {
+      statusFilter = { isDisabled: false };
+    } else if (options.filterStatus === 'disabled') {
+      statusFilter = { isDisabled: true };
+    } else if (!options.includeDisabled) {
+      // Fallback para compatibilidad con versiones anteriores
+      statusFilter = { isDisabled: false };
+    }
+
     const categories = await prisma.category.findMany({
-      where: includeDisabled ? {} : { isDisabled: false }, // Filtro condicional
+      where: statusFilter,
       orderBy: {
-        name: "asc",
+        [options.sortBy]: options.sortOrder
       },
     });
 

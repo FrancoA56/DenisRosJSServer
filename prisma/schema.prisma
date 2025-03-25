@@ -36,27 +36,29 @@ enum OrderStatus {
 }
 
 model Product {
-  id         Int         @id @default(autoincrement())
+  id         Int                @id @default(autoincrement())
   sku        String
   name       String
   shortDesc  String
   longDesc   String
   categoryId Int?
-  category   Category?   @relation(fields: [categoryId], references: [id])
+  category   Category?          @relation(fields: [categoryId], references: [id])
   brandId    Int?
-  brand      Brand?      @relation(fields: [brandId], references: [id])
+  brand      Brand?             @relation(fields: [brandId], references: [id])
   reviews    Review[]
   gallery    String[]
-  variations Variation[]
+  attributes ProductAttribute[]
+  variations ProductVariation[]
   discount   Discount?
-  orderItems OrderItem[] // Relación inversa con OrderItem
-  length     Float?
-  width      Float?
-  height     Float?
-  weight     Float?
-  isDisabled Boolean     @default(false)
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  orderItems OrderItem[]
+  basePrice  Float
+  baseWeight Float?
+  baseLength Float?
+  baseWidth  Float?
+  baseHeight Float?
+  isDisabled Boolean            @default(false)
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
   deletedAt  DateTime?
 
   @@map("products")
@@ -72,7 +74,7 @@ model Category {
 }
 
 model Brand {
-  id         Int       @id @default(autoincrement()) // Puede ser uuid() o cuid()
+  id         Int       @id @default(autoincrement())
   name       String    @unique
   logo       String?
   isDisabled Boolean   @default(false)
@@ -83,39 +85,86 @@ model Brand {
 
 model Review {
   id        Int      @id @default(autoincrement())
-  productId Int // Cambiado a Int
+  productId Int
   product   Product  @relation(fields: [productId], references: [id])
-  userId    Int // Nuevo campo para la relación con User
+  userId    Int
   user      User     @relation(fields: [userId], references: [id])
-  stars     Int // Valor entre 1-5
+  stars     Int
   message   String?
   createdAt DateTime @default(now())
 
   @@map("reviews")
 }
 
-model Variation {
-  id         Int         @id @default(autoincrement())
-  productId  Int
-  product    Product     @relation(fields: [productId], references: [id])
-  type       String // Tamaño, color, etc.
-  code       String      
-  name       String
-  imageUrl   String?
-  price      Float
-  length     Float? 
-  width      Float? 
-  height     Float? 
-  weight     Float?
-  stock      Int         @default(0) // Nuevo campo: Stock de la variación
-  orderItems OrderItem[] // Relación inversa con OrderItem
+model Attribute {
+  id               Int                @id @default(autoincrement())
+  name             String             @unique
+  description      String?
+  options          AttributeOption[]
+  isDisabled       Boolean            @default(false)
+  ProductAttribute ProductAttribute[]
 
-  @@map("variations")
+  @@map("attributes")
+}
+
+model AttributeOption {
+  id              Int               @id @default(autoincrement())
+  attributeId     Int
+  attribute       Attribute         @relation(fields: [attributeId], references: [id])
+  value           String
+  code            String?
+  isDisabled      Boolean           @default(false)
+  VariationOption VariationOption[]
+
+  @@map("attribute_options")
+}
+
+model ProductAttribute {
+  id          Int       @id @default(autoincrement())
+  productId   Int
+  product     Product   @relation(fields: [productId], references: [id])
+  attributeId Int
+  attribute   Attribute @relation(fields: [attributeId], references: [id])
+  isRequired  Boolean   @default(false)
+
+  @@map("product_attributes")
+}
+
+model ProductVariation {
+  id         Int               @id @default(autoincrement())
+  productId  Int
+  product    Product           @relation(fields: [productId], references: [id])
+  sku        String            @unique
+  price      Float?
+  stock      Int               @default(0)
+  weight     Float?
+  length     Float?
+  width      Float?
+  height     Float?
+  imageUrl   String?
+  isDefault  Boolean           @default(false)
+  options    VariationOption[]
+  orderItems OrderItem[]
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  @@map("product_variations")
+}
+
+model VariationOption {
+  id                Int              @id @default(autoincrement())
+  variationId       Int
+  variation         ProductVariation @relation(fields: [variationId], references: [id])
+  attributeOptionId Int
+  attributeOption   AttributeOption  @relation(fields: [attributeOptionId], references: [id])
+
+  @@unique([variationId, attributeOptionId])
+  @@map("variation_options")
 }
 
 model Discount {
   id        Int       @id @default(autoincrement())
-  productId Int       @unique // Cambiado a Int
+  productId Int       @unique
   product   Product   @relation(fields: [productId], references: [id])
   type      String // "percentage" o "fixed"
   value     Float // Si es "percentage" es %, si es "fixed" es dinero
@@ -131,7 +180,7 @@ model Order {
   user          User        @relation(fields: [userId], references: [id])
   items         OrderItem[]
   totalAmount   Float
-  status        OrderStatus @default(PENDING) // Estado de la compra
+  status        OrderStatus @default(PENDING)
   paymentId     String? // ID del pago en Mercado Pago u otro servicio
   paymentMethod String // Método de pago ("MercadoPago", "Banco", etc.)
   shipping      Shipping?
@@ -143,15 +192,15 @@ model Order {
 }
 
 model OrderItem {
-  id          Int        @id @default(autoincrement())
+  id          Int               @id @default(autoincrement())
   orderId     Int
-  order       Order      @relation(fields: [orderId], references: [id])
+  order       Order             @relation(fields: [orderId], references: [id])
   productId   Int
-  product     Product    @relation(fields: [productId], references: [id])
+  product     Product           @relation(fields: [productId], references: [id])
   variationId Int?
-  variation   Variation? @relation(fields: [variationId], references: [id])
+  variation   ProductVariation? @relation(fields: [variationId], references: [id])
   quantity    Int
-  price       Float
+  price       Float // Precio en el momento de la compra
 
   @@map("order_items")
 }
@@ -160,15 +209,16 @@ model Shipping {
   id         Int      @id @default(autoincrement())
   orderId    Int      @unique
   order      Order    @relation(fields: [orderId], references: [id])
-  trackingId String? // ID de seguimiento de Shipnow
-  status     String // Estado del envío (En camino, Entregado, etc.)
+  trackingId String? // ID de seguimiento
+  status     String // Estado del envío
+  address    Json // Datos de envío (puede ser estructurado)
   createdAt  DateTime @default(now())
 
   @@map("shippings")
 }
 
 model User {
-  id              Int       @id @default(autoincrement()) // ID autoincremental
+  id              Int       @id @default(autoincrement())
   firstName       String?
   lastName        String?
   phone           String?
@@ -178,15 +228,17 @@ model User {
   direccion       String?
   numeroDireccion String?
   email           String    @unique
-  passwordHashed  String // Contraseña encriptada
+  passwordHashed  String
   codigoPostal    String?
   isDisabled      Boolean   @default(false)
-  role            Role      @default(CLIENTE) // Nuevo campo: Rol del usuario
-  orders          Order[] // Relación con órdenes
-  reviews         Review[] // Relación con reseñas
+  role            Role      @default(CLIENTE)
+  orders          Order[]
+  reviews         Review[]
   Invoice         Invoice[]
-  createdAt       DateTime  @default(now()) // Fecha de creación
-  updatedAt       DateTime  @updatedAt // Fecha de actualización
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("users")
 }
 
 model Invoice {
@@ -195,10 +247,12 @@ model Invoice {
   user          User          @relation(fields: [userId], references: [id])
   orderId       Int
   order         Order         @relation(fields: [orderId], references: [id])
-  total         Decimal       @db.Decimal(10, 2) // Mejor precisión para precios
+  total         Decimal       @db.Decimal(10, 2)
   items         Json // Lista de productos comprados
-  paymentMethod PaymentMethod // Enum para métodos de pago
-  status        InvoiceStatus @default(PENDIENTE) // Enum para estado de la factura
+  paymentMethod PaymentMethod
+  status        InvoiceStatus @default(PENDIENTE)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+
+  @@map("invoices")
 }
