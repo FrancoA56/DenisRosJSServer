@@ -7,6 +7,7 @@ import updateUserController from "../../controllers/user/updateUserController";
 import toggleUserStatusController from "../../controllers/user/toggleUserStatusController";
 import updateUserRoleController from "../../controllers/user/updateUserRoleController";
 import getAllUsersController from "../../controllers/user/getAllUsersController";
+import deleteUserController from "../../controllers/user/deleteUserController";
 
 const userRouter = Router();
 
@@ -17,5 +18,7 @@ userRouter.get("/profile", authenticateToken, getProfileController);
 userRouter.put("/:id", updateUserController);
 userRouter.put("/toggle/:id", toggleUserStatusController);
 userRouter.put("/role/:id", updateUserRoleController);
+userRouter.delete("/delete/:id", deleteUserController);
+
 
 export default userRouter;
