@@ -6,11 +6,11 @@ const createOptionAttributeController = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { attributeId } = req.params;
+    const { id } = req.params;
     const { options } = req.body;
 
     // Validaciones
-    if (!attributeId) {
+    if (!id) {
       res.status(400).json({ 
         error: "Se necesita el ID del atributo para crear opciones" 
       });
@@ -24,7 +24,7 @@ const createOptionAttributeController = async (
       return;
     }
 
-    const attributeIdNumber = parseInt(attributeId);
+    const attributeIdNumber = parseInt(id);
     if (isNaN(attributeIdNumber)) {
       res.status(400).json({ 
         error: "ID de atributo inválido" 

@@ -41,6 +41,7 @@ model Product {
   name       String
   shortDesc  String
   longDesc   String
+  tags       String[]           @default([])           
   categoryId Int?
   category   Category?          @relation(fields: [categoryId], references: [id])
   brandId    Int?

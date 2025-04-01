@@ -11,60 +11,59 @@ export const createOptionAttributeHandler = async (
   options: OptionData[]
 ) => {
   try {
-    // Validación adicional
-    if (!attributeId || isNaN(attributeId)) {
+    // Validación básica mejorada
+    if (!attributeId || attributeId <= 0) {
       throw new Error("ID de atributo inválido");
     }
 
-    if (!options || !Array.isArray(options) || options.length === 0) {
-      throw new Error("Se requiere un array de opciones válido");
+    if (!options?.length) {
+      throw new Error("Debe proporcionar al menos una opción");
     }
 
-    // Verificar que el atributo existe
-    const attribute = await prisma.attribute.findUnique({
+    // Normalizar opciones
+    const normalizedOptions = options.map(opt => ({
+      value: opt.value.trim(),
+      code: opt.code?.trim() || null
+    }));
+
+    // Verificar atributo existe
+    const attributeExists = await prisma.attribute.findUnique({
       where: { id: attributeId },
       select: { id: true }
     });
 
-    if (!attribute) {
+    if (!attributeExists) {
       throw new Error(`Atributo con ID ${attributeId} no encontrado`);
     }
 
-    // Crear las opciones en una transacción
+    // Crear opciones
     const createdOptions = await prisma.$transaction(
-      options.map(option =>
+      normalizedOptions.map(option =>
         prisma.attributeOption.create({
           data: {
             attributeId,
             value: option.value,
-            code: option.code || null,
-          },
-          select: {
-            id: true,
-            value: true,
-            code: true,
-            attributeId: true,
+            code: option.code,
           }
         })
       )
     );
 
     return {
-      message: `${createdOptions.length} opción(es) creada(s) correctamente`,
+      success: true,
       attributeId,
+      addedCount: createdOptions.length,
       options: createdOptions
     };
   } catch (error) {
     console.error("Error en createOptionAttributeHandler:", error);
     
-    if (error instanceof Error && error.message.includes('Unique constraint')) {
-      throw new Error("Alguna de las opciones ya existe para este atributo");
-    }
+    const errorMessage = error instanceof Error 
+      ? error.message.includes('Unique constraint')
+        ? "Una o más opciones ya existen para este atributo"
+        : error.message
+      : "Error desconocido al crear opciones";
     
-    throw new Error(
-      error instanceof Error 
-        ? error.message 
-        : "Error desconocido al crear opciones de atributo"
-    );
+    throw new Error(errorMessage);
   }
 };

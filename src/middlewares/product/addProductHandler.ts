@@ -9,6 +9,7 @@ interface ProductBaseData {
   longDesc: string;
   categoryId?: number;
   brandId?: number;
+  tags?: string[];
   gallery?: string[];
   basePrice: number;
   baseWeight?: number;
@@ -27,6 +28,7 @@ export const addProductHandler = async (productData: ProductBaseData) => {
     categoryId,
     brandId,
     gallery = [],
+    tags,
     basePrice,
     baseWeight,
     baseLength,
@@ -50,6 +52,7 @@ export const addProductHandler = async (productData: ProductBaseData) => {
         longDesc,
         categoryId,
         brandId,
+        tags: productData.tags || [],
         gallery,
         basePrice,
         baseWeight,
